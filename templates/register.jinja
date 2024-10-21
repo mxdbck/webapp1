@@ -1,0 +1,25 @@
+<!-- templates/register.jinja -->
+{% extends "base.jinja" %}
+
+{% block title %}Register{% endblock %}
+
+{% block extra_head %}
+<!-- You can add page-specific styles or scripts here -->
+<!-- <link rel="stylesheet" href="/static/css/home.css"> -->
+{% endblock %}
+
+{% block content %}
+<h1>Register</h1>
+<form action="/register" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required /><br /><br />
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required /><br /><br />
+
+    <label for="password">Secret :</label>
+    <input type="secret" id="secret" name="secret" required /><br /><br />
+
+    <button type="submit">Register</button>
+</form>
+{% endblock %}

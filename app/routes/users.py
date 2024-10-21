@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Form, Response, Request, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
 import sqlite3
 from pathlib import Path
 from app.db import get_db, DATABASE
@@ -12,13 +13,12 @@ REGISTRATION_SECRET = os.getenv("REGISTRATION_SECRET")
 
 router = APIRouter()
 
-protected_html_file_path = Path("static/protected.html")
+templates = Jinja2Templates(directory="templates")
 
 @router.post("/register")
 async def register_user(
     username: str = Form(...),
     password: str = Form(...),
-    text_field: str = Form(...),
     secret: str = Form(...)
 ):
     # Check if the provided secret matches the one in the .env file
@@ -30,6 +30,8 @@ async def register_user(
 
     print(f"Registering user {username}...")
 
+    text_field = ""
+
     try:
         cursor.execute('INSERT INTO users (username, password, text_field) VALUES (?, ?, ?)',
                        (username, password, text_field))
@@ -40,6 +42,10 @@ async def register_user(
         conn.close()
 
     return {"message": f"User {username} registered successfully!"}
+
+@router.get("/register")
+async def register_form(request: Request):
+    return templates.TemplateResponse("register.jinja", {"request": request})
 
 @router.post("/login")
 async def login_user(response: Response, username: str = Form(...), password: str = Form(...)):
@@ -79,22 +85,23 @@ async def protected_route(request: Request):
         ''', (cookie_value,))
 
         user_text = cursor.fetchone()
+        conn.close()
     except sqlite3.DatabaseError:
         # Handle database errors
-        return templates.TemplateResponse("error.html", {
+        return templates.TemplateResponse("error.jinja", {
             "request": request,
             "message": "Database Error",
             "details": "We encountered a problem accessing the database."
         }, status_code=500)
-    finally:
-        conn.close()
+    # finally:
+    #     conn.close()
 
     if user_text:
         # User is authorized, render the protected page
-        return templates.TemplateResponse("protected.html", {"request": request})
+        return templates.TemplateResponse("protected.jinja", {"request": request})
     else:
         # User is not authorized, show a custom error page
-        return templates.TemplateResponse("error.html", {
+        return templates.TemplateResponse("error.jinja", {
             "request": request,
             "message": "403 Forbidden",
             "details": "You are not authorized to access this page."
@@ -104,4 +111,3 @@ async def protected_route(request: Request):
 async def logout(response: Response):
     response.delete_cookie(key="mycookie")
     return {"message": "Logged out!"}
-

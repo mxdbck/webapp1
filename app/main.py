@@ -15,9 +15,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(users.router)
 
-
 index_html_file_path = Path("static/index.html")
 
 @app.get("/")
 async def serve_homepage(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("index.jinja", {"request": request})

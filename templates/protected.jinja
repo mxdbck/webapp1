@@ -1,0 +1,16 @@
+{% extends "base.jinja" %}
+
+{% block title %}Protected Page{% endblock %}
+
+{% block extra_head %}
+<!-- You can add page-specific styles or scripts here -->
+<!-- <link rel="stylesheet" href="/static/css/home.css"> -->
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 id="greeting">Welcome, <span id="username"></span>!</h1>
+    <p>This is a simple webpage served using FastAPI.</p>
+    <button id="colorButton">Change Text Color</button>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{% block title %}My Website{% endblock %}</title>
+        <link rel="stylesheet" href="/static/style.css" />
+        <script src="/static/script.js"></script>
+        <meta name="description" content="My Website description" />
+
+        <!-- Additional block for specific page-specific head content (optional) -->
+        {% block extra_head %}{% endblock %}
+    </head>
+
+    <body>
+        <header>
+            <h1>My Website</h1>
+            <!-- Common header content, like navigation, can go here -->
+        </header>
+
+        <main>{% block content %}{% endblock %}</main>
+
+        <footer>
+            <p>&copy; 2024 My Website</p>
+        </footer>
+    </body>
+</html>
