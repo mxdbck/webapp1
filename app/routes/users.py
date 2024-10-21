@@ -62,7 +62,7 @@ async def login_user(response: Response, username: str = Form(...), password: st
         return {"error": "Invalid username or password"}
 
 # Protected route, accessible only if the cookie is set
-@router.get("/protected", response_class=HTMLResponse)
+@router.get("/protected")
 async def protected_route(request: Request):
     cookie_value = request.cookies.get("mycookie")
 
@@ -70,22 +70,38 @@ async def protected_route(request: Request):
         return RedirectResponse(url="/")
 
     # Connect to the database and retrieve the user data based on the username in the cookie
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
 
-    cursor.execute('''
-    SELECT text_field FROM users WHERE username = ?
-    ''', (cookie_value,))
+        cursor.execute('''
+        SELECT text_field FROM users WHERE username = ?
+        ''', (cookie_value,))
 
-    user_text = cursor.fetchone()
-    conn.close()
+        user_text = cursor.fetchone()
+    except sqlite3.DatabaseError:
+        # Handle database errors
+        return templates.TemplateResponse("error.html", {
+            "request": request,
+            "message": "Database Error",
+            "details": "We encountered a problem accessing the database."
+        }, status_code=500)
+    finally:
+        conn.close()
 
     if user_text:
-        return HTMLResponse(content=protected_html_file_path.read_text())
+        # User is authorized, render the protected page
+        return templates.TemplateResponse("protected.html", {"request": request})
     else:
-        return HTMLResponse(content="You are not authorized to access this page!", status_code=403)
+        # User is not authorized, show a custom error page
+        return templates.TemplateResponse("error.html", {
+            "request": request,
+            "message": "403 Forbidden",
+            "details": "You are not authorized to access this page."
+        }, status_code=403)
 
 @router.get("/logout")
 async def logout(response: Response):
     response.delete_cookie(key="mycookie")
     return {"message": "Logged out!"}
+

@@ -1,3 +1,10 @@
-[tool.pyright]
-venvPath = "."
-venv = ".venv"
+[project]
+name = "webapp2"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.115.2",
+    "jinja2>=3.1.4",
+]
